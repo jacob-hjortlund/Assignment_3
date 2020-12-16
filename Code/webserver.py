@@ -12,6 +12,7 @@ class server():
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        self.status = False
         self.listen_socket = listen_socket = socket.socket(address_family, socket_type)
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listen_socket.bind((host, port))
@@ -47,7 +48,6 @@ class server():
         path = self.path
         if not os.path.exists(path):
             self.status = "404 Not Found"
-            return
         # TODO: handle attempts at accessing files outside of server directory
         # TODO: handle attempts at accessing server code
 
@@ -79,15 +79,20 @@ class server():
         self.parse_HTTP_request(http_request)
         
         # TODO: Update request handling so code isn't repeated. Make use of
-        # self.status somehow
-        if self.request != 'GET':
-            status = "501 Not Implemented"
-            response = self.start_response(status)
-            response_bytes = response.encode()
-            self.conn.sendall(response_bytes)
-            self.conn.close()
-            return
-        
+        # self.status + while loop?
+        while not self.status:
+            if self.request != 'GET':
+                self.status = "501 Not Implemented"
+            self.check_URL()
+            # If none of the above change status, then set to 200 OK
+            self.status = "200 OK"
 
+        response = self.start_response(self.status)
+        response += "\r\n"
+        #response += body TODO: this lol
+        response_bytes = response.encode()
+        self.conn.sendall(response_bytes)
+        self.conn.close()
+        #
 
         return 1
