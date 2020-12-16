@@ -1,5 +1,5 @@
 import socket
-from os import listdir
+import os
 from datetime import datetime, timezone
 from mako.template import Template
 
@@ -28,7 +28,7 @@ class server():
         self.request, self.path, self.HTTP_ver = request_line.split()
     
     def listing(self, path):
-        contents = listdir("." + path)
+        contents = os.listdir("." + path)
         template = """
             <html>
             <head>
@@ -42,6 +42,14 @@ class server():
             </html>
             """
         return Template(template).render(docs=contents, port=self.port)
+
+    def check_URL(self):
+        path = self.path
+        if not os.path.exists(path):
+            self.status = "404 Not Found"
+            return
+        # TODO: handle attempts at accessing files outside of server directory
+        # TODO: handle attempts at accessing server code
 
     def _http_date(self):
         dt = datetime.now(tz=timezone.utc)
@@ -70,12 +78,15 @@ class server():
         self.http_request = http_request = http_request.decode('utf-8')
         self.parse_HTTP_request(http_request)
         
+        # TODO: Update request handling so code isn't repeated. Make use of
+        # self.status somehow
         if self.request != 'GET':
             status = "501 Not Implemented"
             response = self.start_response(status)
             response_bytes = response.encode()
             self.conn.sendall(response_bytes)
             self.conn.close()
+            return
         
 
 
