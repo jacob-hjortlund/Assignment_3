@@ -28,9 +28,7 @@ class server():
         self.request, self.path, self.HTTP_ver = request_line.split()
     
     def listing(self, path):
-        contents = listdir(path)
-        try:
-            contents.remove('webserver.py')
+        contents = listdir("." + path)
         template = """
             <html>
             <head>
@@ -38,12 +36,12 @@ class server():
             </head>
             <body>
             % for doc in docs:
-                <a href="file://${doc}"> ${doc} </a>
+                <a href="http://localhost:${port}/${doc}"> ${doc} </a>
             % endfor
             </body>
             </html>
             """
-        return Template(template).render(docs=contents)
+        return Template(template).render(docs=contents, port=self.port)
 
     def _http_date(self):
         dt = datetime.now(tz=timezone.utc)
