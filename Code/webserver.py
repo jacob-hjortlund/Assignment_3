@@ -41,10 +41,21 @@ class server():
 
         return status_line+date+connection
 
-    def GET_respone(self, blablbala):
+    def GET_response(self, blablbala):
         # has to parse encoding etc etc from request
         return 1
 
     def handle_request(self):
         # TODO: Handle GET request, otherwise return error blablbal
+        http_request = self.conn.recv(1024)
+        self.http_request = http_request = http_request.decode('utf-8')
+        self.parse_HTTP_request(http_request)
+        
+        if self.request != 'GET':
+            status = "501 Not Implemented"
+            response = self.start_response(status)
+            response_bytes = response.encode()
+            self.conn.sendall(response_bytes)
+            self.conn.close()
+
         return 1
