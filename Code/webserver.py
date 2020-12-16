@@ -1,5 +1,8 @@
 import socket
+from os import listdir
 from datetime import datetime, timezone
+from mako.template import Template
+
 
 class server():
 
@@ -24,6 +27,24 @@ class server():
         request_line = text.splitlines()[0].rstrip('\r\n')
         self.request, self.path, self.HTTP_ver = request_line.split()
     
+    def listing(self, path):
+        contents = listdir(path)
+        try:
+            contents.remove('webserver.py')
+        template = """
+            <html>
+            <head>
+                <title> Results </title>
+            </head>
+            <body>
+            % for doc in docs:
+                <a href="file://${doc}"> ${doc} </a>
+            % endfor
+            </body>
+            </html>
+            """
+        return Template(template).render(docs=contents)
+
     def _http_date(self):
         dt = datetime.now(tz=timezone.utc)
 
@@ -57,5 +78,7 @@ class server():
             response_bytes = response.encode()
             self.conn.sendall(response_bytes)
             self.conn.close()
+        
+
 
         return 1
