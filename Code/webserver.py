@@ -54,7 +54,6 @@ class Server():
         if self.request != "GET":
             self.status = "501 Not Implemented"
         if not os.path.exists(self.path):
-            print(self.path)
             self.status = "404 Not Found"
         if self.status != "400 Bad Request":
             if f"Host: localhost:{self.port}" not in self.request_headers:

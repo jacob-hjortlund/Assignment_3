@@ -28,20 +28,22 @@ def test_valid_get_subfolder_requestslib():
     assert r.status_code == 200
     assert "<a href=" in r.text # encoded as links
     assert "testfile.txt" in r.text
-    print("Succeded: test_valid_get_subfolder_requestslib")
+    print("Succeeded: test_valid_get_subfolder_requestslib")
 
 # Test a file in subfolder
-def test_valid_get_ressource_requestslib():
+def test_valid_get_resource_requestslib():
     r = requests.get('http://localhost:64321/folder1/testfile.txt')
     checkValidResponse(r)
     assert r.status_code == 200
-    assert "This is a test" == r.text 
+    assert "This is a test" == r.text
+    print("Succeeded: test_valid_get_resource_requestslib")
 
 # Test with invalid ressource path
 def test_invalid_patch_requestslib():
     r = requests.patch('http://localhost:64321/filethatdoesnotexist')
     checkValidResponse(r)
     assert r.status_code == 404 # wrong file
+    print("Succeeded: test_invalid_patch_requestslib")
 
 # spawn web server for all tests
 server = subprocess.Popen(["python3", "../Code/webserver.py"])
@@ -50,7 +52,7 @@ time.sleep(1)
 try:
     test_valid_get_nopath_requestslib()
     test_valid_get_subfolder_requestslib()
-    test_valid_get_ressource_requestslib()
+    test_valid_get_resource_requestslib()
     test_invalid_patch_requestslib()
 finally:
     server.terminate()
