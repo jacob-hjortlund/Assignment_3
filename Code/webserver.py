@@ -75,13 +75,27 @@ class server():
 
         return status_line+date
 
-    def GET_response(self):
+    def GET_response(self, response):
         if os.path.isdir(self.path):
+
+            content_type = "Content-Type: text/html\r\n"
             if "index.html" in os.listdir(self.path):
-                body = 1#load file
+                with open(self.path+"/index.html", mode='rb') as file:
+                    body_bytes = bytearray(file.read())
+                    content_length = f"Content-Length: {len(body_bytes)}\r\n"
             else:
                 body = self.listing()
-        return 1
+                body_bytes = bytearray(body.encode())
+                content_length = f"Content-Length: {len(body_bytes)}\r\n"
+            
+            reponse += content_type + content_length + "Connection: close\r\n\r\n"
+            response_bytes = response.encode()
+            response_bytes += body_bytes
+        else:
+            content_type, _ = guess_type(path)
+
+
+            
 
     def handle_request(self):
         # TODO: Handle GET request, otherwise return error blablbal
@@ -92,7 +106,7 @@ class server():
 
         response = self.start_response(self.status)
         if self.status == "200 OK":
-            self.GET_response()
+            self.GET_response(response)
         connection = "Connection: close\r\n"
         response += "\r\n"
         response_bytes = response.encode()
