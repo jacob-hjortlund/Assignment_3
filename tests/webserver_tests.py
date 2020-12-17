@@ -10,9 +10,18 @@ def checkValidResponse(r):
     date = datetime.datetime.strptime(r.headers["Date"], '%a, %d %b %Y %H:%M:%S GMT')
     assert (date - datetime.datetime.utcnow()).total_seconds() < 5
 
-# Test an index of subfolder is returned
+# Test an index of main folder is returned
 def test_valid_get_nopath_requestslib():
     r = requests.get('http://localhost:64321/')
+    checkValidResponse(r)
+    assert r.status_code == 200
+    assert "<a href=" in r.text # encoded as links
+    assert "folder" in r.text
+    assert "webserver_tests.py" in r.text
+    
+# Test an index of subfolder is returned
+def test_valid_get_nopath_requestslib():
+    r = requests.get('http://localhost:64321/folder1/')
     checkValidResponse(r)
     assert r.status_code == 200
     assert "<a href=" in r.text # encoded as links
