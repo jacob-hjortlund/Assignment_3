@@ -88,7 +88,6 @@ class server():
 
         response = self.start_response(self.status)
         response += "\r\n"
-        #response += body TODO: this lol
         response_bytes = response.encode()
         self.conn.sendall(response_bytes)
         self.conn.close()
