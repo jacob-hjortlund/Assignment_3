@@ -12,7 +12,7 @@ class server():
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.status = False
+        self.status = "200 OK"
         self.listen_socket = listen_socket = socket.socket(address_family, socket_type)
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listen_socket.bind((host, port))
@@ -78,13 +78,9 @@ class server():
         self.http_request = http_request = http_request.decode('utf-8')
         self.parse_HTTP_request(http_request)
         
-        while not self.status:
-            if self.request != 'GET':
-                self.status = "501 Not Implemented"
-            self.check_URL()
-
-            # If none of the above change status, then set to 200 OK
-            self.status = "200 OK"
+        if self.request != 'GET':
+            self.status = "501 Not Implemented"
+        self.check_URL()
 
         response = self.start_response(self.status)
         response += "\r\n"
