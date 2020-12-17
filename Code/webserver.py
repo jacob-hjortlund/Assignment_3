@@ -13,7 +13,7 @@ class Server():
         self.host = host
         self.port = port
         self.status = "200 OK"
-        self.listen_socket = listen_socket = socket.socket(address_family, socket_type)
+        self.listen_socket = listen_socket = socket.socket(self.address_family, self.socket_type)
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listen_socket.bind((host, port))
         listen_socket.listen()
@@ -70,7 +70,7 @@ class Server():
     def start_response(self, status):
         # Generate status line and general headers of response
         status_line = f"HTTP/1.1 {status}\r\n"
-        date = self._http_date() + "\r\n"
+        date = "Date:" + self._http_date() + "\r\n"
 
         return status_line+date
 
