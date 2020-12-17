@@ -52,7 +52,7 @@ class server():
 
     def check_request(self):
         if self.request != "GET":
-            self.status = "501 Not Implemented" # TODO: Add Allow header in case of 501
+            self.status = "501 Not Implemented"
         if not os.path.exists(self.path):
             self.status = "404 Not Found"
         if self.status != "400 Bad Request":
@@ -69,7 +69,6 @@ class server():
         return f"{weekday}, {dt.day:02d} {month} {dt.year:04d} {dt.hour:02d}:{dt.minute:02d}:{dt.second:02d} GMT"
 
     def start_response(self, status):
-        # Generate status line and general headers of response
         status_line = f"HTTP/1.1 {status}\r\n"
         date = self._http_date() + "\r\n"
 
@@ -102,9 +101,10 @@ class server():
             response += content_type + content_length + "Connection: close\r\n\r\n"
             response_bytes = response.encode()
             response_bytes += body_bytes
+        
+        return response_bytes
 
     def handle_request(self):
-        # TODO: Handle GET request, otherwise return error blablbal
         http_request = self.conn.recv(1024)
         self.http_request = http_request = http_request.decode('utf-8')
         self.parse_HTTP_request(http_request)
@@ -112,10 +112,12 @@ class server():
 
         response = self.start_response(self.status)
         if self.status == "200 OK":
-            self.GET_response(response)
-        connection = "Connection: close\r\n"
-        response += "\r\n"
-        response_bytes = response.encode()
+            response_bytes = self.GET_response(response)
+        elif self.status == "501 Not Implemented":
+            response += "Allow: GET\r\n" + "Connection: close\r\n"
+        else:
+            response += "Connection: close\r\n"
+
         self.conn.sendall(response_bytes)
         self.conn.close()
 
