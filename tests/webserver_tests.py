@@ -40,7 +40,11 @@ def test_valid_get_withpath_requestslib():
 
 # spawn web server for all tests
 server = subprocess.Popen(["python3", "../Code/webserver.py"])
+import time
+time.sleep(1)
 try:
+    import os
+    os.system("curl -v http://localhost:64321")
     test_valid_get_nopath_requestslib()
     test_valid_get_withpath_requestslib()
     test_invalid_patch_requestslib()
