@@ -2,6 +2,7 @@ import socket
 import os
 from datetime import datetime, timezone
 from mako.template import Template
+from mimetypes import guess_type
 
 
 class server():
@@ -25,11 +26,16 @@ class server():
             self.handle_request()
 
     def parse_HTTP_request(self, text):
-        request_line = text.splitlines()[0].rstrip('\r\n')
+        request_split = text.splitlines()
+        request_line = request_split[0].rstrip('\r\n')
         self.request, self.path, self.HTTP_ver = request_line.split()
-    
-    def listing(self, path):
-        contents = os.listdir("." + path)
+        try:
+            self.request_headers = request_split[1:]
+        except:
+            self.status = "400 Bad Request"
+
+    def listing(self):
+        contents = os.listdir("." + self.path)
         template = """
             <html>
             <head>
@@ -44,12 +50,14 @@ class server():
             """
         return Template(template).render(docs=contents, port=self.port)
 
-    def check_URL(self):
-        path = self.path
-        if not os.path.exists(path):
+    def check_request(self):
+        if self.request != "GET":
             self.status = "404 Not Found"
-        # TODO: handle attempts at accessing files outside of server directory
-        # TODO: handle attempts at accessing server code
+        if not os.path.exists(self.path):
+            self.status = "404 Not Found"
+        if self.status != "400 Bad Request":
+            if "Host: localhost" not in self.request_headers:
+                self.status = "400 Bad Request"
 
     def _http_date(self):
         dt = datetime.now(tz=timezone.utc)
@@ -64,12 +72,15 @@ class server():
         # Generate status line and general headers of response
         status_line = f"HTTP/1.1 {status}\r\n"
         date = self._http_date() + "\r\n"
-        connection = "Connection: close\r\n"
 
-        return status_line+date+connection
+        return status_line+date
 
-    def GET_response(self, blablbala):
-        # has to parse encoding etc etc from request
+    def GET_response(self):
+        if os.path.isdir(self.path):
+            if "index.html" in os.listdir(self.path):
+                body = 1#load file
+            else:
+                body = self.listing()
         return 1
 
     def handle_request(self):
@@ -77,16 +88,15 @@ class server():
         http_request = self.conn.recv(1024)
         self.http_request = http_request = http_request.decode('utf-8')
         self.parse_HTTP_request(http_request)
-        
-        if self.request != 'GET':
-            self.status = "501 Not Implemented"
-        self.check_URL()
+        self.check_request()
 
         response = self.start_response(self.status)
+        if self.status == "200 OK":
+            self.GET_response()
+        connection = "Connection: close\r\n"
         response += "\r\n"
         response_bytes = response.encode()
         self.conn.sendall(response_bytes)
         self.conn.close()
-        #
 
         return 1
