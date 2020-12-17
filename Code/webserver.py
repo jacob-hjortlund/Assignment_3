@@ -28,13 +28,14 @@ class Server():
         request_split = text.splitlines()
         request_line = request_split[0].rstrip('\r\n')
         self.request, self.path, self.HTTP_ver = request_line.split()
+        self.path = "."+self.path
         try:
             self.request_headers = request_split[1:]
         except:
             self.status = "400 Bad Request"
 
     def listing(self):
-        contents = os.listdir("." + self.path)
+        contents = os.listdir(self.path)
         template = """
             <html>
             <head>
@@ -53,6 +54,7 @@ class Server():
         if self.request != "GET":
             self.status = "501 Not Implemented"
         if not os.path.exists(self.path):
+            print(self.path)
             self.status = "404 Not Found"
         if self.status != "400 Bad Request":
             if f"Host: localhost:{self.port}" not in self.request_headers:
