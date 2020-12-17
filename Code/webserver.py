@@ -55,7 +55,7 @@ class Server():
         if not os.path.exists(self.path):
             self.status = "404 Not Found"
         if self.status != "400 Bad Request":
-            if "Host: localhost" not in self.request_headers:
+            if f"Host: localhost:{self.port}" not in self.request_headers:
                 self.status = "400 Bad Request"
 
     def _http_date(self):
@@ -111,11 +111,13 @@ class Server():
 
         response = self.start_response(self.status)
         if self.status == "200 OK":
-            response_bytes = self.GET_response(response)
+            response_bytes = bytes(self.GET_response(response))
         elif self.status == "501 Not Implemented":
             response += "Allow: GET\r\n" + "Connection: close\r\n"
+            response_bytes = response.encode()
         else:
             response += "Connection: close\r\n"
+            response_bytes = response.encode()
 
         self.conn.sendall(response_bytes)
         self.conn.close()
