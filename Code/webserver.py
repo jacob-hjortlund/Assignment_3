@@ -55,6 +55,8 @@ class Server():
             self.status = "501 Not Implemented"
         if not os.path.exists(self.path):
             self.status = "404 Not Found"
+        if self.HTTP_ver != "HTTP/1.1":
+            self.status = "505 HTTP Version not supported"
         if self.status != "400 Bad Request":
             if f"Host: localhost:{self.port}" not in self.request_headers:
                 self.status = "400 Bad Request"
