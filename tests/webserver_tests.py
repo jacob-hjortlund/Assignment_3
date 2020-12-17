@@ -18,17 +18,20 @@ def test_valid_get_nopath_requestslib():
     assert "<a href=" in r.text # encoded as links
     assert "folder" in r.text
     assert "webserver_tests.py" in r.text
+    print("Succeded: test_valid_get_nopath_requestslib")
     
 # Test an index of subfolder is returned
-def test_valid_get_nopath_requestslib():
+def test_valid_get_subfolder_requestslib():
     r = requests.get('http://localhost:64321/folder1/')
     checkValidResponse(r)
+    print(r.status_code)
     assert r.status_code == 200
     assert "<a href=" in r.text # encoded as links
     assert "testfile.txt" in r.text
+    print("Succeded: test_valid_get_subfolder_requestslib")
 
 # Test a file in subfolder
-def test_valid_get_withpath_requestslib():
+def test_valid_get_ressource_requestslib():
     r = requests.get('http://localhost:64321/folder1/testfile.txt')
     checkValidResponse(r)
     assert r.status_code == 200
@@ -39,24 +42,15 @@ def test_invalid_patch_requestslib():
     r = requests.patch('http://localhost:64321/filethatdoesnotexist')
     checkValidResponse(r)
     assert r.status_code == 404 # wrong file
-    
-# Test a file in subfolder
-def test_valid_get_withpath_requestslib():
-    r = requests.get('http://localhost:64321/folder1/testfile.txt')
-    checkValidResponse(r)
-    assert r.status_code == 200
-    assert "This is a test" == r.text 
 
 # spawn web server for all tests
 server = subprocess.Popen(["python3", "../Code/webserver.py"])
 import time
 time.sleep(1)
 try:
-    import os
-    os.system("curl -v http://localhost:64321")
     test_valid_get_nopath_requestslib()
-    test_valid_get_withpath_requestslib()
-    test_invalid_patch_requestslib()
+    test_valid_get_subfolder_requestslib()
+    test_valid_get_ressource_requestslib()
     test_invalid_patch_requestslib()
 finally:
     server.terminate()
