@@ -78,12 +78,11 @@ class server():
         self.http_request = http_request = http_request.decode('utf-8')
         self.parse_HTTP_request(http_request)
         
-        # TODO: Update request handling so code isn't repeated. Make use of
-        # self.status + while loop?
         while not self.status:
             if self.request != 'GET':
                 self.status = "501 Not Implemented"
             self.check_URL()
+
             # If none of the above change status, then set to 200 OK
             self.status = "200 OK"
 
