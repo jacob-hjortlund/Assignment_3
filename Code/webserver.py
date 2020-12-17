@@ -52,7 +52,7 @@ class server():
 
     def check_request(self):
         if self.request != "GET":
-            self.status = "404 Not Found"
+            self.status = "501 Not Implemented" # TODO: Add Allow header in case of 501
         if not os.path.exists(self.path):
             self.status = "404 Not Found"
         if self.status != "400 Bad Request":
@@ -83,19 +83,25 @@ class server():
                 with open(self.path+"/index.html", mode='rb') as file:
                     body_bytes = bytearray(file.read())
                     content_length = f"Content-Length: {len(body_bytes)}\r\n"
+                    file.close()
             else:
                 body = self.listing()
                 body_bytes = bytearray(body.encode())
                 content_length = f"Content-Length: {len(body_bytes)}\r\n"
             
-            reponse += content_type + content_length + "Connection: close\r\n\r\n"
+            response += content_type + content_length + "Connection: close\r\n\r\n"
             response_bytes = response.encode()
             response_bytes += body_bytes
         else:
-            content_type, _ = guess_type(path)
-
-
+            content_type, _ = guess_type(self.path)
+            with open(self.path, mode='rb') as file:
+                body_bytes = bytearray(file.read())
+                content_length = f"Content-Length: {len(body_bytes)}\r\n"
+                file.close()
             
+            response += content_type + content_length + "Connection: close\r\n\r\n"
+            response_bytes = response.encode()
+            response_bytes += body_bytes
 
     def handle_request(self):
         # TODO: Handle GET request, otherwise return error blablbal
