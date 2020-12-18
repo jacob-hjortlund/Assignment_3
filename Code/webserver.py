@@ -9,7 +9,7 @@ class Server():
     address_family = socket.AF_INET
     socket_type = socket.SOCK_STREAM
 
-    def __init__(self, host, port):
+    def __init__(self, port, host=""):
         self.host = host
         self.port = port
         self.status = "200 OK"
@@ -133,5 +133,5 @@ if __name__ == "__main__":
         raise Exception("Wrong command line arguments. Should be just a single folder path")
     if (len(sys.argv)==2):
         os.chdir(sys.argv[1])
-    server = Server("127.0.0.1", 64321)
+    server = Server(host="127.0.0.1", port=64321)
     server.run_server()
