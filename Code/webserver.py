@@ -9,7 +9,7 @@ class Server():
     address_family = socket.AF_INET
     socket_type = socket.SOCK_STREAM
 
-    def __init__(self, host, port):
+    def __init__(self, port, host=""):
         self.host = host
         self.port = port
         self.status = "200 OK"
@@ -28,13 +28,14 @@ class Server():
         request_split = text.splitlines()
         request_line = request_split[0].rstrip('\r\n')
         self.request, self.path, self.HTTP_ver = request_line.split()
+        self.path = "."+self.path
         try:
             self.request_headers = request_split[1:]
         except:
             self.status = "400 Bad Request"
 
     def listing(self):
-        contents = os.listdir("." + self.path)
+        contents = os.listdir(self.path)
         template = """
             <html>
             <head>
@@ -54,6 +55,8 @@ class Server():
             self.status = "501 Not Implemented"
         if not os.path.exists(self.path):
             self.status = "404 Not Found"
+        if self.HTTP_ver != "HTTP/1.1":
+            self.status = "505 HTTP Version not supported"
         if self.status != "400 Bad Request":
             if f"Host: localhost:{self.port}" not in self.request_headers:
                 self.status = "400 Bad Request"
@@ -130,5 +133,5 @@ if __name__ == "__main__":
         raise Exception("Wrong command line arguments. Should be just a single folder path")
     if (len(sys.argv)==2):
         os.chdir(sys.argv[1])
-    server = Server("127.0.0.1", 64321)
+    server = Server(host="127.0.0.1", port=64321)
     server.run_server()
